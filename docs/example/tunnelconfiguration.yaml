@@ -1,0 +1,8 @@
+apiVersion: cloudflared.cloudflare.com/v1alpha1
+kind: TunnelConfiguration
+metadata:
+  name: tunnelconfiguration-sample
+spec:
+  originCert:
+    kind: Secret
+    name: default-origincert
