@@ -1,0 +1,24 @@
+# permissions for end users to edit tunnels.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tunnel-editor-role
+rules:
+- apiGroups:
+  - cloudflared.cloudflare.com
+  resources:
+  - tunnels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cloudflared.cloudflare.com
+  resources:
+  - tunnels/status
+  verbs:
+  - get

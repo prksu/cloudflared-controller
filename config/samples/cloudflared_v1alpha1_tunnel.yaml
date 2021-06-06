@@ -1,0 +1,12 @@
+apiVersion: cloudflared.cloudflare.com/v1alpha1
+kind: Tunnel
+metadata:
+  name: tunnel-sample
+spec:
+  originCert:
+    kind: Secret
+    name: default-origincert
+  # rules:
+  # - hostname: nginx.example.com
+  #   service: http://my-nginx.default.svc
+  # - service: http_status:404

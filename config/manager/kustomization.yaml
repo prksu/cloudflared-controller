@@ -1,5 +1,6 @@
 resources:
 - manager.yaml
+- credentials.yaml
 
 generatorOptions:
   disableNameSuffixHash: true

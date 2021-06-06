@@ -17,11 +17,13 @@ limitations under the License.
 package main
 
 import (
+	"errors"
 	"flag"
 	"os"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
+
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -30,6 +32,10 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
+	cloudflaredv1alpha1 "github.com/prksu/cloudflared-controller/api/v1alpha1"
+	"github.com/prksu/cloudflared-controller/cloudflare"
+	"github.com/prksu/cloudflared-controller/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -41,6 +47,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
+	utilruntime.Must(cloudflaredv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -59,9 +66,15 @@ func main() {
 	opts.BindFlags(flag.CommandLine)
 	flag.Parse()
 
+	ctx := ctrl.SetupSignalHandler()
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
-	ctx := ctrl.SetupSignalHandler()
+	if _, ok := os.LookupEnv(cloudflare.APITokenEnv); !ok {
+		err := errors.New("missing CF_API_TOKEN env var")
+		setupLog.Error(err, "unable to lookup cloudflare api token")
+		os.Exit(1)
+	}
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
@@ -75,6 +88,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&controllers.TunnelReconciler{
+		Client:   mgr.GetClient(),
+		Scheme:   mgr.GetScheme(),
+		Recorder: mgr.GetEventRecorderFor(controllers.TunnelControllerName),
+	}).SetupWithManager(ctx, mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Tunnel")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
