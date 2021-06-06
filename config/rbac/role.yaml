@@ -19,6 +19,14 @@ rules:
 - apiGroups:
   - cloudflared.cloudflare.com
   resources:
+  - tunnelconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cloudflared.cloudflare.com
+  resources:
   - tunnels
   verbs:
   - create
@@ -62,3 +70,37 @@ rules:
   - list
   - patch
   - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingressclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses/status
+  verbs:
+  - get
+  - patch
+  - update
