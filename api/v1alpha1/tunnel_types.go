@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -32,15 +31,9 @@ type TunnelIngressRule struct {
 	Service  string `json:"service"`
 }
 
-// TunnelConfiguration defines the desired configuration of Tunnel
-type TunnelConfiguration struct {
-	// OriginCert is a reference to a object that contains cloudflare tunnel origincert.
-	OriginCert *corev1.TypedLocalObjectReference `json:"originCert,omitempty"`
-}
-
 // TunnelSpec defines the desired state of Tunnel
 type TunnelSpec struct {
-	TunnelConfiguration `json:",inline,omitempty"`
+	TunnelConfigurationSpec `json:",inline,omitempty"`
 	// Ingress Rules configurations for this Tunnel.
 	// +optional
 	IngressRules []TunnelIngressRule `json:"rules,omitempty"`

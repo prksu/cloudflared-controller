@@ -1,0 +1,20 @@
+# permissions for end users to view tunnelconfigurations.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tunnelconfiguration-viewer-role
+rules:
+- apiGroups:
+  - cloudflared.cloudflare.com
+  resources:
+  - tunnelconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cloudflared.cloudflare.com
+  resources:
+  - tunnelconfigurations/status
+  verbs:
+  - get

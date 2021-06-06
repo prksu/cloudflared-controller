@@ -16,4 +16,12 @@ resources:
   kind: Tunnel
   path: github.com/prksu/cloudflared-controller/api/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cloudflare.com
+  group: cloudflared
+  kind: TunnelConfiguration
+  path: github.com/prksu/cloudflared-controller/api/v1alpha1
+  version: v1alpha1
 version: "3"
