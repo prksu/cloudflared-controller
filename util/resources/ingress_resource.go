@@ -17,12 +17,13 @@ limitations under the License.
 package resources
 
 import (
-	"strconv"
+	"strings"
 
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	cloudflaredv1alpha1 "github.com/prksu/cloudflared-controller/api/v1alpha1"
+	"github.com/prksu/cloudflared-controller/util"
 )
 
 type IngressResourceGetter interface {
@@ -52,13 +53,60 @@ func (r ingressResource) Tunnel() *cloudflaredv1alpha1.Tunnel {
 }
 
 func (r ingressResource) TunnelIngressRules() []cloudflaredv1alpha1.TunnelIngressRule {
-	var ir []cloudflaredv1alpha1.TunnelIngressRule
-	if r.Spec.DefaultBackend != nil {
+	var tirList []cloudflaredv1alpha1.TunnelIngressRule
+	for _, rule := range r.Spec.Rules {
+		for _, hip := range rule.HTTP.Paths {
+
+			// Path matching according https://kubernetes.io/docs/concepts/services-networking/ingress/#examples
+			//
+			// - PathTypeExact:
+			//	1. Add "^" at beginning and end with "$" to make it exact match
+			// - PathTypePrefix:
+			//	1. Add "^" at beginning and end with "$" to make it exact match
+			//	2. Add "^" at beginning and end with "/" to make it matches subpath
+			// - PathTypeImplementationSpecific:
+			//	1. Leave as is
+			switch *hip.PathType {
+			case networkingv1.PathTypeExact:
+				var tir cloudflaredv1alpha1.TunnelIngressRule
+				tir.Path = "^" + hip.Path + "$"
+				tir.Hostname = rule.Host
+				tir.Service = util.FormatIngressServiceBackend(hip.Backend.Service)
+				tirList = append(tirList, tir)
+			case networkingv1.PathTypePrefix:
+				var tir1 cloudflaredv1alpha1.TunnelIngressRule
+				var tir2 cloudflaredv1alpha1.TunnelIngressRule
+				path := strings.TrimSuffix(hip.Path, "/")
+				tir1.Hostname = rule.Host
+				tir1.Path = "^" + path + "$"
+				tir1.Service = util.FormatIngressServiceBackend(hip.Backend.Service)
+				tir2.Hostname = rule.Host
+				tir2.Path = "^" + path + "/"
+				tir2.Service = util.FormatIngressServiceBackend(hip.Backend.Service)
+				tirList = append(tirList, tir1)
+				tirList = append(tirList, tir2)
+			default:
+				var tir cloudflaredv1alpha1.TunnelIngressRule
+				tir.Hostname = rule.Host
+				tir.Path = hip.Path
+				tir.Service = util.FormatIngressServiceBackend(hip.Backend.Service)
+			}
+		}
+	}
+
+	// Required default rule which match all URLs.
+	// use cloudflare http_status:404 if there is no default backend specific
+	switch r.Spec.DefaultBackend {
+	case nil:
+		tirList = append(tirList, cloudflaredv1alpha1.TunnelIngressRule{
+			Service: "http_status:404",
+		})
+	default:
 		svc := r.Spec.DefaultBackend.Service
-		ir = append(ir, cloudflaredv1alpha1.TunnelIngressRule{
-			Service: "http://" + svc.Name + ":" + strconv.Itoa(int(svc.Port.Number)),
+		tirList = append(tirList, cloudflaredv1alpha1.TunnelIngressRule{
+			Service: util.FormatIngressServiceBackend(svc),
 		})
 	}
 
-	return ir
+	return tirList
 }

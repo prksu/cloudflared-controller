@@ -19,6 +19,7 @@ package util
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
@@ -31,6 +32,10 @@ import (
 
 	cloudflaredv1alpha1 "github.com/prksu/cloudflared-controller/api/v1alpha1"
 )
+
+func FormatIngressServiceBackend(svc *networkingv1.IngressServiceBackend) string {
+	return "http://" + svc.Name + ":" + strconv.Itoa(int(svc.Port.Number))
+}
 
 func GetOriginCertSecret(ctx context.Context, crclient client.Client, namespace string, ref *corev1.TypedLocalObjectReference) (*corev1.Secret, error) {
 	secret := &corev1.Secret{}
