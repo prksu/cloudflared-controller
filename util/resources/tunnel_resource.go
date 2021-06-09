@@ -84,13 +84,15 @@ func (r tunnelResource) ConfigMap() *corev1.ConfigMap {
 func (r tunnelResource) ConfigMapData() (map[string]string, error) {
 	data := make(map[string]string)
 	config := struct {
-		Tunnel          string                                  `json:"tunnel,omitempty"`
-		CredentialsFile string                                  `json:"credentials-file,omitempty"`
-		Ingress         []cloudflaredv1alpha1.TunnelIngressRule `json:"ingress,omitempty"`
+		Tunnel          string                                   `json:"tunnel,omitempty"`
+		CredentialsFile string                                   `json:"credentials-file,omitempty"`
+		Ingress         []cloudflaredv1alpha1.TunnelIngressRule  `json:"ingress,omitempty"`
+		OriginRequest   *cloudflaredv1alpha1.TunnelOriginRequest `json:"originRequest,omitempty"`
 	}{
 		Tunnel:          r.TunnelName(),
 		CredentialsFile: "/etc/cloudflared/" + r.TunnelName() + ".json",
 		Ingress:         r.Spec.IngressRules,
+		OriginRequest:   r.Spec.OriginRequest,
 	}
 
 	b, err := yaml.Marshal(config)

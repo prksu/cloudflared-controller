@@ -64,6 +64,53 @@ spec:
                 - kind
                 - name
                 type: object
+              originRequest:
+                description: OriginRequest is optional origin configurations. See
+                  https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration/ingress#origin-configurations
+                properties:
+                  connectTimeout:
+                    description: 'Timeout for establishing a new TCP connection to
+                      your origin server. This excludes the time taken to establish
+                      TLS. (Default: 30s)'
+                    type: string
+                  disableChunkedEncoding:
+                    description: 'Disables chunked transfer encoding. Useful if you
+                      are running a WSGI server. (Default: false)'
+                    type: boolean
+                  httpHostHeader:
+                    description: Sets the HTTP Host header on requests sent to the
+                      local service.
+                    type: string
+                  keepAliveConnections:
+                    description: 'Maximum number of idle keepalive connections between
+                      Tunnel and your origin. This does not restrict the total number
+                      of concurrent connections. (Default: 100)'
+                    format: int32
+                    type: integer
+                  keepAliveTimeout:
+                    description: 'Timeout after which an idle keepalive connection
+                      can be discarded. (Default: 1m30s)'
+                    type: string
+                  noTLSVerify:
+                    description: 'Disables TLS verification of the certificate presented
+                      by your origin. Will allow any certificate from the origin to
+                      be accepted. (Default: false)'
+                    type: boolean
+                  originServerName:
+                    description: Hostname that cloudflared should expect from your
+                      origin server certificate.
+                    type: string
+                  tcpKeepAlive:
+                    description: 'The timeout after which a TCP keepalive packet is
+                      sent on a connection between Tunnel and the origin server. (Default:
+                      30s)'
+                    type: string
+                  tlsTimeout:
+                    description: 'Timeout for completing a TLS handshake to your origin
+                      server, if you have chosen to connect Tunnel to an HTTPS server.
+                      (Default: 10s)'
+                    type: string
+                type: object
               rules:
                 description: Ingress Rules configurations for this Tunnel.
                 items:

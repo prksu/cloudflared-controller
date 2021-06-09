@@ -16,6 +16,5 @@ Check out the [getting started guide](./docs/getting-started.md)
 
 ## Roadmap
 
-- Add more [cloudflare tunnel configuration](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/configuration) in the TunnelConfiguration 
 - Support cloudflare tunnel [lb route](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/routing-to-tunnel/lb) type
 - Support Kubernetes Service [LoadBalancerClass](https://kubernetes.io/docs/concepts/services-networking/service/#load-balancer-class) (Kubernetes v1.21)
