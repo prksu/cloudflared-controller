@@ -233,7 +233,7 @@ func (r *TunnelReconciler) reconcileDelete(ctx context.Context, cfclient cloudfl
 
 	log.Info("Ensuring all tunnel daemon has stopped")
 	dep := tr.Deployment()
-	if err := r.Client.Get(ctx, client.ObjectKeyFromObject(dep), dep); err != nil {
+	if err := r.Client.Get(ctx, client.ObjectKeyFromObject(dep), dep); err != nil && !apierrors.IsNotFound(err) {
 		return ctrl.Result{}, err
 	}
 
